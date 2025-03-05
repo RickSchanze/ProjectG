@@ -20,8 +20,14 @@ AGPlayerController::AGPlayerController()
 
 void AGPlayerController::BeginPlay()
 {
-	// Call the base class  
-	Super::BeginPlay();
+	if (const ACharacter* MyCharacter = GetCharacter())
+	{
+		AnimInstance = MyCharacter->GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			AnimInstance->LinkAnimClassLayers(NoGunLocomotionAnimInstanceClass);
+		}
+	}
 }
 
 void AGPlayerController::SetupInputComponent()
@@ -116,14 +122,44 @@ void AGPlayerController::OnMouseWheel(const FInputActionValue& Value)
 
 void AGPlayerController::EquipGun()
 {
-	if (GunMontage)
+	if (GunMontage && GunState == EGunState::Idle)
 	{
-		// GetCharacter()->GetMesh()->GetAnimInstance()->Montage_Play();
+		float Succeed = AnimInstance->Montage_Play(GunMontage);
+		if (Succeed == 0.0f)
+		{
+			return;
+		}
+		GunState = EGunState::Equiping;
+		AnimInstance->Montage_JumpToSection(EquipGunAnimName);
+		AnimInstance->LinkAnimClassLayers(GunLocomotionAnimInstanceClass);
+		FOnMontageEnded OnMontageEnded;
+		OnMontageEnded.BindLambda([this](UAnimMontage*, bool /*bInterrupted*/)
+		{
+			GunState = EGunState::Equiped;
+		});
+		AnimInstance->Montage_SetEndDelegate(OnMontageEnded);
 	}
 }
 
 void AGPlayerController::DemountGun()
 {
+	if (GunMontage && GunState == EGunState::Equiped)
+	{
+		float Succeed = AnimInstance->Montage_Play(GunMontage);
+		if (Succeed == 0.0f)
+		{
+			return;
+		}
+		GunState = EGunState::Demounting;
+		AnimInstance->Montage_JumpToSection(DemountGunName);
+		AnimInstance->LinkAnimClassLayers(NoGunLocomotionAnimInstanceClass);
+		FOnMontageEnded OnMontageEnded;
+		OnMontageEnded.BindLambda([this](UAnimMontage*, bool /*bInterrupted*/)
+		{
+			GunState = EGunState::Idle;
+		});
+		AnimInstance->Montage_SetEndDelegate(OnMontageEnded);
+	}
 }
 
 void AGPlayerController::ReloadGun()

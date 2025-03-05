@@ -6,7 +6,18 @@
 #include "GameFramework/PlayerController.h"
 #include "GPlayerController.generated.h"
 
+UENUM(BlueprintType)
+enum class EGunState : uint8
+{
+	Idle,
+	Equiping,
+	Equiped,
+	Reloading,
+	Demounting,
+	Max
+};
 
+class UGAnimInstance;
 class USpringArmSetting;
 class UKAS_SpringArmSetting;
 struct FInputActionValue;
@@ -96,8 +107,18 @@ private:
 	FName ReloadGunName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation, meta=(AllowPrivateAccess = "true"))
-	FName FireGunAnim;
+	FName FireGunAnimName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation, meta=(AllowPrivateAccess = "true"))
-	FName EquipGunAnim;
+	FName EquipGunAnimName;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation, meta=(AllowPrivateAccess = "true"))
+	TSubclassOf<UAnimInstance> NoGunLocomotionAnimInstanceClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Animation, meta=(AllowPrivateAccess = "true"))
+	TSubclassOf<UAnimInstance> GunLocomotionAnimInstanceClass;
+
+	UAnimInstance* AnimInstance;
+
+	EGunState GunState;
 };
