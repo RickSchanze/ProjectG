@@ -43,6 +43,19 @@ struct PROJECTG_API FCharacterMoveState
 	float SpeedFactor; // = speed / max_speed
 };
 
+USTRUCT(BlueprintType)
+struct FCurveState
+{
+	GENERATED_BODY()
+
+	// 哪只脚抬起来了
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float CanStop = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float UpFoot = 0;
+};
+
 /**
  * 
  */
@@ -64,4 +77,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FCharacterMoveState MoveState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FCurveState FootState;
 };

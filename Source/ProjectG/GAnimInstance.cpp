@@ -26,4 +26,6 @@ void UGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	const FRotator VelocityRotator = CharacterInfo.Velocity.Rotation();
 	MoveState.Angle = VelocityRotator.Yaw - CharacterInfo.Rotation.Yaw;
 	MoveState.SpeedFactor = CharacterInfo.Speed / CharacterInfo.MaxSpeed;
+	GetCurveValueWithDefault("UpFoot", 0, FootState.UpFoot);
+	GetCurveValueWithDefault("CanStop", 0, FootState.CanStop);
 }
