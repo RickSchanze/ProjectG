@@ -17,15 +17,30 @@ void UGAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (Character)
 	{
 		CharacterInfo.Velocity = Character->GetVelocity();
-		CharacterInfo.Speed = Character->GetVelocity().Size();
+		CharacterInfo.Speed = Character->GetVelocity().Size2D();
 		CharacterInfo.Acceleration = Character->GetVelocity();
 		CharacterInfo.Rotation = Character->GetActorRotation();
 		CharacterInfo.MaxSpeed = Character->GetMovementComponent()->GetMaxSpeed();
 	}
-	MoveState.bShouldMove = CharacterInfo.Speed > 5.f && CharacterInfo.Acceleration != FVector::ZeroVector;
+	MoveState.bShouldMove = CharacterInfo.Speed > 0.03f && CharacterInfo.Acceleration != FVector::ZeroVector;
 	const FRotator VelocityRotator = CharacterInfo.Velocity.Rotation();
 	MoveState.Angle = VelocityRotator.Yaw - CharacterInfo.Rotation.Yaw;
 	MoveState.SpeedFactor = CharacterInfo.Speed / CharacterInfo.MaxSpeed;
-	GetCurveValueWithDefault("UpFoot", 0, FootState.UpFoot);
-	GetCurveValueWithDefault("CanStop", 0, FootState.CanStop);
+	GetCurveValueWithDefault("UpFoot", 0, CurveState.UpFoot);
+	GetCurveValueWithDefault("CanStop", 0, CurveState.CanStop);
+	if (CharacterInfo.Acceleration == FVector::ZeroVector)
+	{
+		FixCharacterLocation(DeltaSeconds);
+	}
+}
+
+void UGAnimInstance::FixCharacterLocation(float DeltaTime)
+{
+	if (Character)
+	{
+		GetCurveValueWithDefault("AnimDrivenSpeed", 0, CurveState.AnimDrivenSpeed);
+		FVector Fix = CharacterInfo.Rotation.Vector() * CurveState.AnimDrivenSpeed * DeltaTime;
+		FVector NewLoc = Character->GetActorLocation() + Fix;
+		Character->SetActorLocation(NewLoc);
+	}
 }

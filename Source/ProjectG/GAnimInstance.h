@@ -54,6 +54,9 @@ struct FCurveState
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	float UpFoot = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	float AnimDrivenSpeed;
 };
 
 /**
@@ -68,6 +71,10 @@ public:
 	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+	// 读取曲线的值, 并以此值修复角色的位置
+	UFUNCTION(BlueprintCallable)
+	void FixCharacterLocation(float DeltaTime);
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<ACharacter> Character;
@@ -79,5 +86,8 @@ protected:
 	FCharacterMoveState MoveState;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FCurveState FootState;
+	FCurveState CurveState;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool bNeedFixLocation;
 };
